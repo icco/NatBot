@@ -10,8 +10,21 @@ NICK="icco-server"
 IDENT="Byahh"
 REALNAME="Nat"
 CHAN="#cpglug"
-readbuffer=""
 
+# This is where we will come up with responses
+def parseLine(msg, s):
+   msg = string.rstrip(msg)
+   msg = string.split(msg)
+
+   if(msg[0] == "PING"):
+      s.send("PONG %s\r\n" % msg[1])
+
+# this is where we will log messages
+def logLine(line):
+   print line
+
+# The main block of the script.
+readbuffer = ""
 s = socket.socket( )
 s.connect((HOST, PORT))
 s.send("NICK %s\r\n" % NICK)
@@ -21,17 +34,11 @@ s.send("PRIVMSG %s :%s\r\n" % (CHAN, "Hello There!"))
 s.send("PRIVMSG %s :%s\r\n" % (CHAN, "I am a bot"))
 
 while 1:
-    readbuffer=readbuffer+s.recv(1024)
-    temp=string.split(readbuffer, "\n")
-    readbuffer=temp.pop( )
+    readbuffer = readbuffer+s.recv(1024)
+    temp = string.split(readbuffer, "\n")
+    readbuffer = temp.pop( )
 
     for line in temp:
-        print line;
-
-        line=string.rstrip(line)
-        line=string.split(line)
-
-        if(line[0]=="PING"):
-            s.send("PONG %s\r\n" % line[1])
-
+       parseLine(line, s)
+       logLine(line)
 
